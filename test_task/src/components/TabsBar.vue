@@ -57,7 +57,6 @@ export default {
         min-width: 320px;
         max-width: 1200px;
         margin: 0 auto;
-        // display: inline-block;
         vertical-align: top;
     }
 
@@ -133,7 +132,6 @@ export default {
         max-width: 1200px;
         background-color: white;
         padding: 20px 30px;
-        // display: inline-block;
     }
 
 
