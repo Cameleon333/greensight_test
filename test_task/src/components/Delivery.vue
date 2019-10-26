@@ -37,12 +37,13 @@ export default {
 </script>
 
 <style lang="less" scoped>
+    @font: 'Montserrat', sans-serif;
     @border-color: #b8bed8;
     @label-color: #3f3f3f;
     @input-disabled-color: #edeeef;
 
     .main {
-        font-family: 'Montserrat', sans-serif;
+        font-family: @font;
         font-weight: 300;
         font-size: 14px;
     }
@@ -58,7 +59,7 @@ export default {
     
     input, .comment {
         display: inline-block;
-        min-width: 220px;
+        // min-width: 220px;
         width: 100%;
         padding: 20px;
         border-radius: 3px;
@@ -91,7 +92,7 @@ export default {
         background-color: @input-disabled-color;
         border-color: @input-disabled-color;
         cursor: default;
-        ~label {
+        +label {
             color: @border-color;
         }
     }
@@ -119,5 +120,6 @@ export default {
     .button {
         text-align: right;
         margin-top: 0;
+        min-width: 0;
     }
 </style>

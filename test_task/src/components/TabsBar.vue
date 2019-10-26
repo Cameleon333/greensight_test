@@ -6,17 +6,20 @@
         </div>
         <div class="tab-content">
             <delivery v-if="tabList[0].isActive"/>
+            <pickup v-if="tabList[1].isActive"/>
         </div>
     </div>
 </template>
 
 <script>
 import Delivery from "./Delivery.vue"
+import Pickup from "./Pickup.vue"
 
 export default {
     name: 'TabsBar',
     components: {
         Delivery,
+        Pickup,
     },
     data() {
         return {
@@ -145,11 +148,12 @@ export default {
 
     input[type="submit"] {
         height: 60px;
-        width: 80px;
+        width: 200px;
         border-radius: 30px;
         background-color: @button-color;
         color: white;
         cursor: pointer;
+        font-size: 16px;
     }
     input[type="submit"]:hover {
         background-color: @button-color - #111111;
