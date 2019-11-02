@@ -31,6 +31,7 @@ export default {
             iconOffset1: [-25, -40],
             iconOffset2: [-25, -40],
             myMap: null,
+            iconURL: require('@/assets/metka.png'),
         }
     },
 
@@ -73,21 +74,40 @@ export default {
 
             let address1 = new ymaps.Placemark([55.801131, 37.508167], {}, {
                 iconLayout: 'default#image',
-                iconImageHref: require('@/assets/metka.png'),
+                iconImageHref: this.iconURL,
                 iconImageSize: [this.iconSize1, this.iconSize1],
                 iconImageOffset: this.iconOffset1,
             });
             let address2 = new ymaps.Placemark([55.757556, 37.651592], {}, {
                 iconLayout: 'default#image',
-                iconImageHref: require('@/assets/metka.png'),
+                iconImageHref: this.iconURL,
                 iconImageSize: [this.iconSize2, this.iconSize2],
                 iconImageOffset: this.iconOffset2,
             });
 
-            this.myMap.geoObjects
+            let myCollection = new ymaps.GeoObjectCollection();
+
+            myCollection
                 .add(address1)
                 .add(address2);
 
+            this.myMap.geoObjects.add(myCollection);
+
+            let centerAndZoom = ymaps.util.bounds.getCenterAndZoom(
+                myCollection.getBounds(),
+                this.myMap.container.getSize(),
+                this.myMap.options.get('projection'),
+            );
+
+            this.myMap.setBounds(myCollection.getBounds());
+            if (myCollection.getLength() == 2) {
+                this.myMap.setCenter(centerAndZoom.center, centerAndZoom.zoom - 1);
+            } else if (myCollection.getLength() == 1) {
+                this.myMap.setCenter(centerAndZoom.center, 17);
+            } else {
+                this.myMap.setCenter(centerAndZoom.center, centerAndZoom.zoom);
+            }
+            console.log(myCollection.getLength());
             this.myMap.behaviors.disable('scrollZoom');
 
             if (this.isMobile()) {
@@ -144,7 +164,7 @@ export default {
     .radio {
         margin-right: 40px;
         display: inline-block;
-        float: left; // не должно работать, но всё фиксит.-. ~*magic*~ 
+        float: left; 
     }
 
     .radio-group {
