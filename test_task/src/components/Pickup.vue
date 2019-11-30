@@ -2,11 +2,11 @@
     <div class="main">
         <form action="" name="pickup-form">
             <div class="radio-group">
-                <div class="group radio">
+                <div class="group radio" :class="{ wide: smallScreen }">
                     <input type="radio" id="address-1" name="address">
                     <label for="address-1" @click="selectAddress()">Пункт Выдачи заказов Песчаная улица, дом 13</label>
                 </div>
-                <div class="group radio">
+                <div class="group radio" :class="{ wide: smallScreen }">
                     <input type="radio" id="address-2" name="address">
                     <label for="address-2" @click="selectAddress()">Пункт Выдачи заказов Подсосенский переулок, 11</label>
                 </div>
@@ -32,6 +32,8 @@ export default {
             iconOffset2: [-25, -40],
             myMap: null,
             iconURL: require('@/assets/metka.png'),
+            screenWidth: 0,
+            smallScreen: false,
         }
     },
 
@@ -107,7 +109,7 @@ export default {
             } else {
                 this.myMap.setCenter(centerAndZoom.center, centerAndZoom.zoom);
             }
-            console.log(myCollection.getLength());
+
             this.myMap.behaviors.disable('scrollZoom');
 
             if (this.isMobile()) {
@@ -134,11 +136,38 @@ export default {
                     this.initMap();
                 }
             }, 100);
+        },
+
+        updateScreenWidth() {
+            let oldScreenWidth = this.screenWidth;
+            this.screenWidth = window.innerWidth;
+            if (this.screenWidth < 768) {
+                this.smallScreen = true;
+                document.getElementById("map").style.height = '250px';
+                // mapHeight.style.height('250px');
+                // if (oldScreenWidth >= 768) {
+                //     this.myMap.destroy();
+                //     this.initMap();
+                // }
+            } else {
+                this.smallScreen = false;
+                document.getElementById("map").style.height = '500px';
+                // mapHeight.style.height('500px');
+                // if (oldScreenWidth < 768) {
+                //     this.myMap.destroy();
+                //     this.initMap();
+                // }
+            }
         }
     },
 
     mounted() {
+        this.updateScreenWidth();
         ymaps.ready(this.initMap());
+    },
+
+    created() {
+        window.addEventListener('resize', this.updateScreenWidth);
     }
 }
 </script>

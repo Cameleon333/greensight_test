@@ -1,12 +1,30 @@
 <template>
     <div id="main">
         <h2>Выберите способ доставки</h2>
-        <div class="tab-panel">
-            <div class="tabs" :class="{ activeTab: tab.isActive}" v-for="(tab, index) in tabList" :key="index" @click="selectTab(index)"><span class="tab-text">{{ tab.text }}</span></div>
+        <div v-if="!smallScreen">
+            <div class="tab-panel">
+                <div class="tabs" :class="{ 'active-tab': tab.isActive }" v-for="(tab, index) in tabList" :key="index" @click="selectTab(index)"><span class="tab-text">{{ tab.text }}</span></div>
+            </div>
+            <div class="tab-content">
+                <delivery v-if="tabList[0].isActive"/>
+                <pickup v-if="tabList[1].isActive"/>
+            </div>
         </div>
-        <div class="tab-content">
-            <delivery v-if="tabList[0].isActive"/>
-            <pickup v-if="tabList[1].isActive"/>
+        <div v-else id="small">
+            <div class="small-tab">
+                    <span class="small-tab-text" :class="{ 'small-active-tab': tabList[0].isActive }" @click="selectTab(0)">{{ tabList[0].text }}</span>
+                    <div class="arrow"></div>
+            </div>
+            <div class="small-tab-content" v-if="tabList[0].isActive">
+                <delivery/>
+            </div>
+            <div class="small-tab" :class="{ 'fix-double-border': tabList[1].isActive }">
+                    <span class="small-tab-text" :class="{ 'small-active-tab': tabList[1].isActive }" @click="selectTab(1)">{{ tabList[1].text }}</span>
+                    <div class="arrow"></div>
+            </div>
+            <div class="small-tab-content" v-if="tabList[1].isActive">
+                <pickup/>
+            </div>
         </div>
     </div>
 </template>
@@ -33,17 +51,34 @@ export default {
                     isActive: false,
                 },
             ],
-            currentTab: 0,
+            // currentTab: 0,
+            screenWidth: 0,
+            smallScreen: false,
         }
     },
 
     methods: {
         selectTab(index) {
+            // alert("hello");
             this.tabList.forEach((element) => {
                 element.isActive = false;
             });
             this.tabList[index].isActive = true;
+        },
+
+        updateScreenWidth() {
+            this.screenWidth = window.innerWidth;
+            if (this.screenWidth < 768) this.smallScreen = true;
+            else this.smallScreen = false;
         }
+    },
+
+    mounted() {
+        this.updateScreenWidth();
+    },
+
+    created() {
+        window.addEventListener('resize', this.updateScreenWidth);
     }
 }
 </script>
@@ -55,6 +90,7 @@ export default {
     @tabs-text-color: #8288a2;
     @tabs-before-border-bottom-color: #dadbdc;
     @tabs-after-border-bottom-color: #edeeef;
+    @border-color: #b8bed8;
 
     #main {
         min-width: 320px;
@@ -121,12 +157,12 @@ export default {
     }
 
     // For selected tab
-    .activeTab {
+    .active-tab {
         background-color: white;
         color: @selected-text-color;
         z-index: 21;
     }
-    .activeTab::after {
+    .active-tab::after {
         border-bottom: 69px solid white;
     }
 
@@ -137,6 +173,69 @@ export default {
         padding: 20px 30px;
     }
 
+    //for small screen width
+    .small-tab {
+        position: relative;
+        min-width: 320px;
+        width: calc(100% - 8px);
+        border-top: 1px solid @border-color;
+        border-bottom: 1px solid @border-color;
+        background-color: white;
+        color: @tabs-text-color;
+        margin: auto;
+    }
+    .small-tab:hover {
+        color: @selected-text-color;
+        cursor: pointer;
+        .arrow {
+            border-color: @selected-text-color;
+        }
+    }
+
+    .small-tab-text {
+        display: block;
+        font-family: @font;
+        font-size: 14px;
+        font-weight: 300;
+        margin-left: 15px;
+        margin-top: 15px;
+        margin-bottom: 15px;
+    }
+
+    .fix-double-border {
+        border-top: 1px solid white;
+        .small-tab-text {
+            margin-top: 14px;
+        }
+    }
+
+    .arrow {
+        width: 0;
+        height: 0;
+        padding: 3px;
+        border-top: 2px solid @border-color;
+        border-left: 2px solid @border-color;
+        position: absolute;
+        right: 30px;
+        top: 20px;
+        transform: rotate(-135deg);
+    }
+
+    .small-active-tab {
+        color: @selected-text-color;
+        + .arrow {
+            transform: rotate(45deg);
+            border-color: @selected-text-color;
+        }
+    }
+
+    .small-tab-content {
+        min-width: 320px;
+        width: calc(100% - 38px);
+        background-color: white;
+        padding: 15px;
+        margin: auto;
+    }
 
 </style>
 

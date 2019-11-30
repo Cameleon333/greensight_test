@@ -1,21 +1,25 @@
 <template>
 <div class="main">
-    <form action="" name="delivery-form">
-        <div class="group" id="container-fio">
-            <input type="text" id="fio" placeholder="Только кириллица" :pattern="maskFio">
+    <form action="" name="delivery-form" @submit="validation">
+        <div class="group" :class="{ wide: smallScreen }" id="container-fio">
+            <input type="text" id="fio" placeholder="Только кириллица" v-model="fio" :class="{error: isErrorFio}" @input="startInput">
             <label for="fio">ФИО</label>
+            <p v-if="isErrorFio" class="err-message">{{ errorMessageFio }}</p>
         </div>
-        <div class="group">
-            <input type="tel" id="phone" placeholder="+7 (___) ___-__-__" :pattern="maskTel">
+        <div class="group" :class="{ wide: smallScreen }">
+            <input type="tel" id="phone" placeholder="+7 (___) ___-__-__" v-model="phone" :class="{error: isErrorPhone}" @input="startInput">
             <label for="phone">Телефон</label>
+            <p v-if="isErrorPhone" class="err-message">{{ errorMessagePhone }}</p>
         </div>
         <div class="group wide">
-            <input type="text" id="delivery-address" placeholder="Город, улица, дом">
+            <input type="text" id="delivery-address" placeholder="Город, улица, дом" v-model="address" :class="{error: isErrorAddress}" @input="startInput">
             <label for="delivery-address">Адрес доставки</label>
+            <p v-if="isErrorAddress" class="err-message">{{ errorMessageAddress }}</p>
         </div>
         <div class="group wide">
-            <textarea name="comment" id="comment" class="comment"></textarea>
+            <textarea name="comment" id="comment" class="comment" v-model="comment" :class="{error: isErrorComment}" @input="startInput"></textarea>
             <label for="comment" id="comment-label">Комментарий</label>
+            <p v-if="isErrorComment" class="err-message">{{ errorMessageComment }}</p>
         </div>
         <div class="group wide button">
             <input type="submit" text="Отправить">
@@ -29,9 +33,103 @@ export default {
     name: 'Delivery',
     data() {
         return {
-            maskTel: "+7 ([0-9]{3}([0-9]{3})([0-9]{2})([0-9]{2})",
-            maskFio: "^[А-Яа-яЁё\\s]+$",
+            isErrorFio: false,
+            isErrorPhone: false,
+            isErrorAddress: false,
+            isErrorComment: false,
+            errorMessageFio: '',
+            errorMessagePhone: '',
+            errorMessageAddress: '',
+            errorMessageComment: '',
+            maskFio: /^[А-Яа-яЁё-\s]+$/,
+            fio: null,
+            phone: null,
+            address: null,
+            comment: null,
+            screenWidth: 0,
+            smallScreen: false,
         }
+    },
+
+    methods: {
+        validation(e) {
+            let emptyMessage = "Поле обязательно для заполнения!";
+
+            if (!this.maskFio.test(this.fio)) {
+                this.isErrorFio = true;
+                if (!this.fio) {
+                    this.errorMessageFio = emptyMessage;
+                } else {
+                    this.errorMessageFio = "Допустимы только символы кириллицы, пробелы и тире!";
+                }
+            }
+            if (!this.phone) {
+                this.isErrorPhone = true;
+                this.errorMessagePhone = emptyMessage;
+            } else {
+                if (this.phone.length > 18) this.phone = this.phone.slice(0, 18);
+                else if (this.phone.length < 18) {
+                    this.isErrorPhone = true;
+                    this.errorMessagePhone = "Некорректный номер!";
+                }
+            }
+            if (!this.address) {
+                this.isErrorAddress = true;
+                this.errorMessageAddress = emptyMessage;
+            }
+            if (!this.comment) {
+                this.isErrorComment = true;
+                this.errorMessageComment = emptyMessage;
+            }
+
+            if (!this.isErrorFio && !this.isErrorPhone && !this.isErrorAddress && !this.isErrorComment) {
+                return true;
+            }
+            
+            e.preventDefault(); 
+        },
+
+        startInput() {
+            if (this.isErrorFio || this.isErrorPhone || this.isErrorAddress || this.isErrorComment) {
+                switch(event.target.id) {
+                    case("fio"):
+                        this.isErrorFio = false;
+                        break;
+                    case("phone"):
+                        this.isErrorPhone = false;
+                        break;
+                    case("delivery-address"):
+                        this.isErrorAddress = false;
+                        break;
+                    case("comment"):
+                        this.isErrorComment = false;
+                        break;
+                }
+            }
+        },
+
+        setPhoneMask() {
+            let element = document.getElementById('phone');
+            let maskOptions = {
+                mask: '+{7} (000) 000-00-00',
+            };
+            let mask = IMask(element, maskOptions);
+        },
+
+        updateScreenWidth() {
+            this.screenWidth = window.innerWidth;
+            if (this.screenWidth < 768) this.smallScreen = true;
+            else this.smallScreen = false;
+        }
+    },
+
+    mounted() {
+        this.updateScreenWidth();
+        this.setPhoneMask();
+    },
+
+    created() {
+        window.addEventListener('resize', this.updateScreenWidth);
     }
 }
 </script>
@@ -41,6 +139,7 @@ export default {
     @border-color: #b8bed8;
     @label-color: #3f3f3f;
     @input-disabled-color: #edeeef;
+    @err-color: red;
 
     .main {
         font-family: @font;
@@ -59,7 +158,6 @@ export default {
     
     input, .comment {
         display: inline-block;
-        // min-width: 220px;
         width: 100%;
         padding: 20px;
         border-radius: 3px;
@@ -106,6 +204,7 @@ export default {
 
     #container-fio {
         margin-right: 40px;
+        float: left;
     }
 
     .wide {
@@ -121,5 +220,19 @@ export default {
         text-align: right;
         margin-top: 0;
         min-width: 0;
+    }
+
+    .error {
+        border-color: @err-color;
+    }
+    .error:hover {
+        border-color: @err-color;
+    }
+
+    .err-message {
+        color: @err-color;
+        text-align: left;
+        position: relative;
+        bottom: 20px;
     }
 </style>
