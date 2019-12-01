@@ -167,8 +167,8 @@ export default {
     }
 
     .tab-content {
-        min-width: 320px;
-        max-width: 1200px;
+        min-width: 290px; //320
+        max-width: 1170px; //1200
         background-color: white;
         padding: 20px 30px;
     }
@@ -230,7 +230,7 @@ export default {
     }
 
     .small-tab-content {
-        min-width: 320px;
+        min-width: 290px; //320
         width: calc(100% - 38px);
         background-color: white;
         padding: 15px;
